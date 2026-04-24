@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow Planner</title>
+    <style>
+        :root {
+            --bg: #f4efe5;
+            --panel: #fffaf2;
+            --panel-strong: #fff;
+            --ink: #1f2937;
+            --muted: #596579;
+            --accent: #0f766e;
+            --accent-soft: #cdeee5;
+            --warm: #c2410c;
+            --warm-soft: #f9d8b8;
+            --line: #e5d6bf;
+            --shadow: 0 18px 40px rgba(95, 70, 32, 0.12);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 28%),
+                radial-gradient(circle at top right, rgba(194, 65, 12, 0.12), transparent 22%),
+                linear-gradient(180deg, #f8f3ea 0%, #f4efe5 100%);
+        }
+
+        .page {
+            width: min(1120px, calc(100% - 32px));
+            margin: 32px auto 40px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(255, 250, 242, 0.98), rgba(248, 240, 226, 0.95));
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: -50px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 118, 110, 0.18), transparent 70%);
+            pointer-events: none;
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+
+        .hero h1 {
+            margin-bottom: 10px;
+            font-size: clamp(2rem, 3vw, 3rem);
+            line-height: 1.05;
+            max-width: 720px;
+        }
+
+        .hero p {
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: var(--panel-strong);
+            border: 1px solid var(--line);
+            color: var(--ink);
+            font-size: 0.92rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(95, 70, 32, 0.06);
+        }
+
+        .span-4 { grid-column: span 4; }
+        .span-5 { grid-column: span 5; }
+        .span-7 { grid-column: span 7; }
+        .span-8 { grid-column: span 8; }
+        .span-12 { grid-column: span 12; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .stat {
+            background: var(--panel-strong);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.94rem;
+            margin-bottom: 6px;
+            color: var(--ink);
+        }
+
+        input, select, textarea, button {
+            font: inherit;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid #ccbba2;
+            background: #fffdfa;
+            color: var(--ink);
+            border-radius: 12px;
+            padding: 11px 12px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: transform 0.16s ease, opacity 0.16s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .secondary {
+            background: var(--panel-strong);
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .danger {
+            background: #7f1d1d;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 11px 10px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .empty {
+            padding: 22px;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed var(--line);
+            border-radius: 14px;
+            margin-top: 12px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            border: 1px solid transparent;
+        }
+
+        .pill-high {
+            background: #ffe2d5;
+            color: #8a2d0f;
+            border-color: #ffc2ab;
+        }
+
+        .pill-medium {
+            background: #fff1c9;
+            color: #7a5800;
+            border-color: #edd27a;
+        }
+
+        .pill-low {
+            background: #ddf4ea;
+            color: #0f5b54;
+            border-color: #b5e7d5;
+        }
+
+        .pill-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .pill-today {
+            background: #ffedd5;
+            color: #9a3412;
+            border-color: #fdba74;
+        }
+
+        .overdue-row {
+            background: rgba(185, 28, 28, 0.06);
+        }
+
+        .today-row {
+            background: rgba(194, 65, 12, 0.06);
+        }
+
+        .day-plan {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            background: var(--panel-strong);
+        }
+
+        .day-plan.weekend {
+            background: #fff7ed;
+            border-color: #fed7aa;
+        }
+
+        .day-plan h3 {
+            margin-bottom: 8px;
+        }
+
+        .plan-task {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--line);
+        }
+
+        .plan-task:last-child {
+            border-bottom: none;
+        }
+
+        .note {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .footer-note {
+            margin-top: 16px;
+            font-size: 0.92rem;
+            color: var(--muted);
+        }
+
+        @media (max-width: 900px) {
+            .span-4, .span-5, .span-7, .span-8 {
+                grid-column: span 12;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 620px) {
+            .page {
+                width: min(100% - 18px, 100%);
+                margin: 10px auto 24px;
+            }
+
+            .hero, .card {
+                padding: 16px;
+            }
+
+            .field-row, .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 1.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <section class="hero">
+            <h1>StudyFlow Planner</h1>
+            <p>
+                A single-file study planner for first-year students. Add your subjects, deadlines, confidence level, difficulty, and time needed, then generate a realistic weekly plan sorted by priority using a custom sorting algorithm that runs fully in the browser.
+            </p>
+            <div class="hero-badges">
+                <span class="badge">Single HTML file</span>
+                <span class="badge">Runs by double-clicking</span>
+                <span class="badge">No server needed</span>
+                <span class="badge">Custom sorting built in</span>
+            </div>
+        </section>
+
+        <div class="grid">
+            <section class="card span-12">
+                <h2>Planner Snapshot</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Subjects Added</span>
+                        <span class="stat-value" id="subjectCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Weekly Hours</span>
+                        <span class="stat-value" id="weeklyHoursValue">12</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Highest Priority</span>
+                        <span class="stat-value" id="highestPriorityValue">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Algorithm</span>
+                        <span class="stat-value" id="algorithmValue" style="font-size:1.1rem;">Merge Sort</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card span-5">
+                <h2>Add Study Task</h2>
+                <form id="taskForm">
+                    <div>
+                        <label for="subject">Subject / Module</label>
+                        <input id="subject" name="subject" type="text" placeholder="Example: Internet Programming" required>
+                    </div>
+                    <div>
+                        <label for="taskType">Task Type</label>
+                        <select id="taskType" name="taskType">
+                            <option>Assignment</option>
+                            <option>Test Revision</option>
+                            <option>Practical</option>
+                            <option>Reading</option>
+                            <option>Project</option>
+                        </select>
+                    </div>
+                    <div class="field-row">
+                        <div>
+                            <label for="deadline">Deadline</label>
+                            <input id="deadline" name="deadline" type="date" required>
+                        </div>
+                        <div>
+                            <label for="hoursNeeded">Hours Needed</label>
+                            <input id="hoursNeeded" name="hoursNeeded" type="number" min="1" max="40" value="4" required>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div>
+                            <label for="difficulty">Difficulty</label>
+                            <select id="difficulty" name="difficulty">
+                                <option value="1">1 - Very Easy</option>
+                                <option value="2">2 - Easy</option>
+                                <option value="3" selected>3 - Moderate</option>
+                                <option value="4">4 - Hard</option>
+                                <option value="5">5 - Very Hard</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="confidence">Confidence</label>
+                            <select id="confidence" name="confidence">
+                                <option value="1">1 - Very Low</option>
+                                <option value="2">2 - Low</option>
+                                <option value="3" selected>3 - Average</option>
+                                <option value="4">4 - Good</option>
+                                <option value="5">5 - Very Good</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" placeholder="Optional: chapter numbers, lecturer advice, or specific weak areas"></textarea>
+                    </div>
+                    <div class="actions">
+                        <button class="primary" type="submit">Add Task</button>
+                        <button class="secondary" type="button" id="seedBtn">Load Demo Data</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="card span-7">
+                <h2>Planning Controls</h2>
+                <div class="field-row">
+                    <div>
+                        <label for="weeklyHours">Available Study Hours This Week</label>
+                        <input id="weeklyHours" type="number" min="1" max="80" value="12">
+                    </div>
+                    <div>
+                        <label for="algorithm">Sorting Algorithm</label>
+                        <select id="algorithm">
+                            <option value="merge">Merge Sort</option>
+                            <option value="insertion">Insertion Sort</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div>
+                        <label for="startDate">Start Planning From</label>
+                        <input id="startDate" type="date">
+                    </div>
+                    <div>
+                        <label for="startMode">Plan Start Rule</label>
+                        <select id="startMode">
+                            <option value="chosen" selected>Use selected date</option>
+                            <option value="today">Always use today</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="note">
+                    Priority is calculated using deadline urgency, difficulty, confidence, and hours needed. The closer the deadline and the lower the confidence, the higher the priority score. The weekly plan begins from the selected start date, weekends get lighter workloads, and overdue tasks are highlighted clearly.
+                </p>
+                <div class="actions">
+                    <button class="primary" id="planBtn" type="button">Generate Study Plan</button>
+                    <button class="secondary" id="saveBtn" type="button">Save Planner</button>
+                    <button class="danger" id="clearBtn" type="button">Clear Everything</button>
+                </div>
+                <p class="footer-note" id="statusMessage">Ready. Add tasks, choose an algorithm, and generate your week.</p>
+            </section>
+
+            <section class="card span-12">
+                <h2>Priority Queue</h2>
+                <div id="taskTableWrap"></div>
+            </section>
+
+            <section class="card span-8">
+                <h2>7-Day Suggested Study Plan</h2>
+                <div id="planOutput"></div>
+            </section>
+
+            <section class="card span-4">
+                <h2>AI Use and Student Decisions</h2>
+                <p class="note">
+                    AI was used as an assistant to brainstorm the interface structure, propose a priority formula, and suggest a way to sort study tasks using custom algorithms inside one HTML file.
+                </p>
+                <p class="note">
+                    The student decisions were to keep the solution as a single local file, choose the final fields to collect, keep the plan focused on first-year study habits, use a visible custom sorting algorithm instead of a framework, and refine the wording, layout, and planning rules for clarity.
+                </p>
+                <p class="note">
+                    The final application logic, selected features, testing, and submission choices remain the student's responsibility.
+                </p>
+                <p class="footer-note">
+                    Before submission, personalize this section so it truthfully reflects what you changed yourself.
+                </p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = "studyflow-planner-v1";
+        const taskForm = document.getElementById("taskForm");
+        const taskTableWrap = document.getElementById("taskTableWrap");
+        const planOutput = document.getElementById("planOutput");
+        const weeklyHoursInput = document.getElementById("weeklyHours");
+        const algorithmSelect = document.getElementById("algorithm");
+        const startDateInput = document.getElementById("startDate");
+        const startModeSelect = document.getElementById("startMode");
+        const statusMessage = document.getElementById("statusMessage");
+        const subjectCount = document.getElementById("subjectCount");
+        const weeklyHoursValue = document.getElementById("weeklyHoursValue");
+        const highestPriorityValue = document.getElementById("highestPriorityValue");
+        const algorithmValue = document.getElementById("algorithmValue");
+
+        let tasks = [];
+
+        function daysUntil(deadline) {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const due = new Date(deadline + "T00:00:00");
+            const diff = due.getTime() - now.getTime();
+            return Math.floor(diff / (1000 * 60 * 60 * 24));
+        }
+
+        function calculatePriority(task) {
+            const daysLeft = daysUntil(task.deadline);
+            const urgencyBand = daysLeft <= 0 ? 18 : Math.max(1, 15 - daysLeft);
+            const difficultyWeight = Number(task.difficulty) * 3;
+            const confidenceWeight = (6 - Number(task.confidence)) * 4;
+            const workloadWeight = Math.min(Number(task.hoursNeeded), 12) * 2;
+            return urgencyBand * 5 + difficultyWeight + confidenceWeight + workloadWeight;
+        }
+
+        function getPriorityLabel(score) {
+            if (score >= 85) {
+                return { text: "High", className: "pill pill-high" };
+            }
+            if (score >= 55) {
+                return { text: "Medium", className: "pill pill-medium" };
+            }
+            return { text: "Low", className: "pill pill-low" };
+        }
+
+        function getDueStatus(task) {
+            if (task.daysLeft < 0) {
+                return {
+                    text: "Overdue",
+                    className: "pill pill-overdue",
+                    rowClass: "overdue-row"
+                };
+            }
+
+            if (task.daysLeft === 0) {
+                return {
+                    text: "Due Today",
+                    className: "pill pill-today",
+                    rowClass: "today-row"
+                };
+            }
+
+            return {
+                text: "Upcoming",
+                className: "pill pill-low",
+                rowClass: ""
+            };
+        }
+
+        function mergeSort(list) {
+            if (list.length <= 1) {
+                return list.slice();
+            }
+
+            const middle = Math.floor(list.length / 2);
+            const left = mergeSort(list.slice(0, middle));
+            const right = mergeSort(list.slice(middle));
+            const merged = [];
+            let i = 0;
+            let j = 0;
+
+            while (i < left.length && j < right.length) {
+                if (left[i].priorityScore >= right[j].priorityScore) {
+                    merged.push(left[i]);
+                    i++;
+                } else {
+                    merged.push(right[j]);
+                    j++;
+                }
+            }
+
+            while (i < left.length) {
+                merged.push(left[i]);
+                i++;
+            }
+
+            while (j < right.length) {
+                merged.push(right[j]);
+                j++;
+            }
+
+            return merged;
+        }
+
+        function insertionSort(list) {
+            const output = list.slice();
+
+            for (let i = 1; i < output.length; i++) {
+                const current = output[i];
+                let j = i - 1;
+
+                while (j >= 0 && output[j].priorityScore < current.priorityScore) {
+                    output[j + 1] = output[j];
+                    j--;
+                }
+
+                output[j + 1] = current;
+            }
+
+            return output;
+        }
+
+        function getSortedTasks() {
+            const scored = tasks.map(function (task) {
+                return Object.assign({}, task, {
+                    priorityScore: calculatePriority(task),
+                    daysLeft: daysUntil(task.deadline)
+                });
+            });
+
+            return algorithmSelect.value === "insertion" ? insertionSort(scored) : mergeSort(scored);
+        }
+
+        function renderTasks() {
+            if (tasks.length === 0) {
+                taskTableWrap.innerHTML = '<div class="empty">No study tasks added yet.</div>';
+                subjectCount.textContent = "0";
+                highestPriorityValue.textContent = "0";
+                return;
+            }
+
+            const sorted = getSortedTasks();
+            const rows = sorted.map(function (task, index) {
+                const label = getPriorityLabel(task.priorityScore);
+                const dueStatus = getDueStatus(task);
+                const dueText = task.daysLeft < 0 ? Math.abs(task.daysLeft) + " day(s) overdue" :
+                    task.daysLeft === 0 ? "Due today" : task.daysLeft + " day(s) left";
+
+                return `
+                    <tr class="${dueStatus.rowClass}">
+                        <td>${index + 1}</td>
+                        <td><strong>${task.subject}</strong><br><span class="note">${task.taskType}</span></td>
+                        <td>${task.deadline}<br><span class="note">${dueText}</span></td>
+                        <td>${task.hoursNeeded} hrs</td>
+                        <td>${task.difficulty} / 5</td>
+                        <td>${task.confidence} / 5</td>
+                        <td>${task.priorityScore}</td>
+                        <td><span class="${label.className}">${label.text}</span></td>
+                        <td><span class="${dueStatus.className}">${dueStatus.text}</span></td>
+                    </tr>
+                `;
+            }).join("");
+
+            taskTableWrap.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Subject</th>
+                            <th>Deadline</th>
+                            <th>Hours</th>
+                            <th>Difficulty</th>
+                            <th>Confidence</th>
+                            <th>Score</th>
+                            <th>Priority</th>
+                            <th>Due Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+
+            subjectCount.textContent = String(tasks.length);
+            highestPriorityValue.textContent = String(sorted[0].priorityScore);
+        }
+
+        function buildPlan() {
+            if (tasks.length === 0) {
+                planOutput.innerHTML = '<div class="empty">Add at least one task before generating a study plan.</div>';
+                statusMessage.textContent = "No plan generated because there are no tasks yet.";
+                return;
+            }
+
+            if (startModeSelect.value === "chosen" && !startDateInput.value) {
+                planOutput.innerHTML = '<div class="empty">Please choose the date you want to start studying from.</div>';
+                statusMessage.textContent = "Select a start date or switch the rule to use today.";
+                return;
+            }
+
+            const sorted = getSortedTasks();
+            const weeklyHours = Math.max(1, Number(weeklyHoursInput.value) || 1);
+            const planStartDate = getPlanStartDate();
+            const planDates = Array.from({ length: 7 }, function (_, index) {
+                const currentDate = new Date(planStartDate);
+                currentDate.setDate(planStartDate.getDate() + index);
+                return currentDate;
+            });
+            const totalWeight = planDates.reduce(function (sum, date) {
+                return sum + getDayWeight(date);
+            }, 0);
+            const plan = planDates.map(function (currentDate) {
+                const weight = getDayWeight(currentDate);
+                const dayCapacity = weeklyHours * (weight / totalWeight);
+                return {
+                    day: formatPlanDay(currentDate),
+                    remaining: dayCapacity,
+                    capacity: dayCapacity,
+                    items: [],
+                    isWeekend: isWeekendDate(currentDate)
+                };
+            });
+
+            let dayIndex = 0;
+            let spillover = 0;
+
+            sorted.forEach(function (task) {
+                let hoursLeft = Number(task.hoursNeeded);
+
+                while (hoursLeft > 0 && dayIndex < plan.length) {
+                    if (plan[dayIndex].remaining <= 0.2) {
+                        dayIndex++;
+                        continue;
+                    }
+
+                    const allocation = Math.min(hoursLeft, Number(plan[dayIndex].remaining.toFixed(2)));
+                    plan[dayIndex].items.push({
+                        subject: task.subject,
+                        type: task.taskType,
+                        hours: allocation,
+                        deadline: task.deadline,
+                        score: task.priorityScore,
+                        daysLeft: task.daysLeft
+                    });
+                    plan[dayIndex].remaining -= allocation;
+                    hoursLeft -= allocation;
+
+                    if (plan[dayIndex].remaining <= 0.2) {
+                        dayIndex++;
+                    }
+                }
+
+                if (hoursLeft > 0) {
+                    spillover += hoursLeft;
+                }
+            });
+
+            const planHtml = plan.map(function (dayBlock) {
+                const itemsHtml = dayBlock.items.length === 0
+                    ? '<div class="plan-task"><span class="note">Light day: review notes, catch up gently, or rest.</span></div>'
+                    : dayBlock.items.map(function (item) {
+                        const dueNote = item.daysLeft < 0
+                            ? '<span style="color:#991b1b;font-weight:700;">Overdue task</span>'
+                            : item.daysLeft === 0
+                                ? '<span style="color:#9a3412;font-weight:700;">Due today</span>'
+                                : '<span class="note">Upcoming task</span>';
+
+                        return `
+                            <div class="plan-task">
+                                <strong>${item.subject}</strong> - ${item.type}<br>
+                                <span class="note">${item.hours.toFixed(1)} hour(s), deadline ${item.deadline}, priority ${item.score}</span><br>
+                                ${dueNote}
+                            </div>
+                        `;
+                    }).join("");
+
+                const used = (dayBlock.capacity - dayBlock.remaining).toFixed(1);
+                const weekendNote = dayBlock.isWeekend
+                    ? '<div class="note">Weekend mode: lighter sessions to reduce burnout.</div>'
+                    : '';
+
+                return `
+                    <div class="day-plan ${dayBlock.isWeekend ? "weekend" : ""}">
+                        <h3>${dayBlock.day}</h3>
+                        <div class="note">Suggested workload: ${used} / ${dayBlock.capacity.toFixed(1)} hours</div>
+                        ${weekendNote}
+                        ${itemsHtml}
+                    </div>
+                `;
+            }).join("");
+
+            const warning = spillover > 0
+                ? `<p class="footer-note" style="color:#8a2d0f;">Warning: you still need ${spillover.toFixed(1)} extra hour(s). Increase weekly hours or reduce task load.</p>`
+                : '<p class="footer-note" style="color:#0f5b54;">Good news: your available hours are enough for the current study list.</p>';
+
+            planOutput.innerHTML = planHtml + warning;
+            statusMessage.textContent = "Study plan generated successfully from " + formatShortDate(planStartDate) + " using " + (algorithmSelect.value === "merge" ? "Merge Sort." : "Insertion Sort.");
+        }
+
+        function saveState() {
+            const payload = {
+                tasks: tasks,
+                weeklyHours: weeklyHoursInput.value,
+                algorithm: algorithmSelect.value,
+                startDate: startDateInput.value,
+                startMode: startModeSelect.value
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            statusMessage.textContent = "Planner saved locally on this computer.";
+        }
+
+        function loadState() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+                renderTasks();
+                buildPlan();
+                updateHeaderState();
+                return;
+            }
+
+            try {
+                const data = JSON.parse(raw);
+                tasks = Array.isArray(data.tasks) ? data.tasks : [];
+                weeklyHoursInput.value = data.weeklyHours || "12";
+                algorithmSelect.value = data.algorithm || "merge";
+                startDateInput.value = data.startDate || "";
+                startModeSelect.value = data.startMode || "chosen";
+            } catch (error) {
+                tasks = [];
+            }
+
+            renderTasks();
+            buildPlan();
+            updateHeaderState();
+        }
+
+        function updateHeaderState() {
+            weeklyHoursValue.textContent = weeklyHoursInput.value || "0";
+            algorithmValue.textContent = algorithmSelect.value === "merge" ? "Merge Sort" : "Insertion Sort";
+        }
+
+        function getPlanStartDate() {
+            if (startModeSelect.value === "today" || !startDateInput.value) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return today;
+            }
+
+            const chosenDate = new Date(startDateInput.value + "T00:00:00");
+            chosenDate.setHours(0, 0, 0, 0);
+            return chosenDate;
+        }
+
+        function formatPlanDay(date) {
+            const weekday = date.toLocaleDateString(undefined, { weekday: "long" });
+            const shortDate = date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+            return weekday + " (" + shortDate + ")";
+        }
+
+        function isWeekendDate(date) {
+            const dayNumber = date.getDay();
+            return dayNumber === 0 || dayNumber === 6;
+        }
+
+        function getDayWeight(date) {
+            return isWeekendDate(date) ? 0.7 : 1;
+        }
+
+        function formatShortDate(date) {
+            return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+        }
+
+        function addTask(task) {
+            tasks.push(task);
+            renderTasks();
+            buildPlan();
+            updateHeaderState();
+            saveState();
+        }
+
+        taskForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(taskForm);
+            const task = {
+                subject: String(formData.get("subject") || "").trim(),
+                taskType: String(formData.get("taskType") || ""),
+                deadline: String(formData.get("deadline") || ""),
+                hoursNeeded: Number(formData.get("hoursNeeded") || 0),
+                difficulty: Number(formData.get("difficulty") || 3),
+                confidence: Number(formData.get("confidence") || 3),
+                notes: String(formData.get("notes") || "").trim()
+            };
+
+            if (!task.subject || !task.deadline || task.hoursNeeded <= 0) {
+                statusMessage.textContent = "Please complete the subject, deadline, and hours fields correctly.";
+                return;
+            }
+
+            addTask(task);
+            taskForm.reset();
+            document.getElementById("difficulty").value = "3";
+            document.getElementById("confidence").value = "3";
+            document.getElementById("hoursNeeded").value = "4";
+            statusMessage.textContent = "Task added and planner updated.";
+        });
+
+        document.getElementById("planBtn").addEventListener("click", function () {
+            renderTasks();
+            buildPlan();
+            updateHeaderState();
+        });
+
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            saveState();
+        });
+
+        document.getElementById("clearBtn").addEventListener("click", function () {
+            if (!confirm("Clear all saved tasks and planner settings?")) {
+                return;
+            }
+
+            tasks = [];
+            localStorage.removeItem(STORAGE_KEY);
+            renderTasks();
+            buildPlan();
+            updateHeaderState();
+            statusMessage.textContent = "All tasks cleared.";
+        });
+
+        document.getElementById("seedBtn").addEventListener("click", function () {
+            tasks = [
+                {
+                    subject: "Internet Programming",
+                    taskType: "Assignment",
+                    deadline: getDateFromToday(2),
+                    hoursNeeded: 6,
+                    difficulty: 4,
+                    confidence: 2,
+                    notes: "Finish single-file HTML app"
+                },
+                {
+                    subject: "Mathematics",
+                    taskType: "Test Revision",
+                    deadline: getDateFromToday(4),
+                    hoursNeeded: 5,
+                    difficulty: 5,
+                    confidence: 2,
+                    notes: "Practice differentiation"
+                },
+                {
+                    subject: "Communication Skills",
+                    taskType: "Reading",
+                    deadline: getDateFromToday(6),
+                    hoursNeeded: 2,
+                    difficulty: 2,
+                    confidence: 4,
+                    notes: "Summarise chapter 3"
+                }
+            ];
+            renderTasks();
+            buildPlan();
+            updateHeaderState();
+            saveState();
+            statusMessage.textContent = "Demo data loaded.";
+        });
+
+        weeklyHoursInput.addEventListener("input", function () {
+            updateHeaderState();
+        });
+
+        algorithmSelect.addEventListener("change", function () {
+            renderTasks();
+            buildPlan();
+            updateHeaderState();
+            saveState();
+        });
+
+        startDateInput.addEventListener("change", function () {
+            buildPlan();
+            saveState();
+        });
+
+        startModeSelect.addEventListener("change", function () {
+            buildPlan();
+            saveState();
+        });
+
+        function getDateFromToday(offset) {
+            const date = new Date();
+            date.setDate(date.getDate() + offset);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return year + "-" + month + "-" + day;
+        }
+
+        renderTasks();
+        buildPlan();
+        updateHeaderState();
+        loadState();
+    </script>
+</body>
+</html>
